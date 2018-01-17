@@ -1,14 +1,13 @@
-FROM node:0.12.7
+FROM golang:1.9.2-alpine3.7 as build
 
-MAINTAINER Adam Hooper <adam@adamhooper.com>
+WORKDIR /src
+ADD . /src/
+RUN go build -o server
 
-RUN groupadd -r app && useradd -r -g app app
 
-COPY . /opt/app/
+FROM alpine:3.7
 
-USER app
-WORKDIR /opt/app
+WORKDIR /app
+COPY --from=build /src/server /app/
 
-ENV PORT 3000
-EXPOSE 3000
-CMD [ "node", "server.js" ]
+CMD [ "/app/server" ]
